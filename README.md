@@ -20,8 +20,6 @@ flutter pub get
 flutter run
 ```
 
-## Création de comptes et Connexion
-
 ## Arrêter
 
 ```bash
