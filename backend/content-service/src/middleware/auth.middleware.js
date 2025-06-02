@@ -18,10 +18,15 @@ const verifyToken = (req, res, next) => {
   
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Le token de Spring Boot utilise 'sub' pour le username
+    // On doit récupérer l'ID et le username depuis le token
     req.user = {
       username: decoded.sub || decoded.username,
-      userId: decoded.sub || decoded.username
+      userId: decoded.id || decoded.userId || decoded.sub // Utiliser l'ID si disponible, sinon le username
     };
+    
+    logger.info(`Token verified for user: ${req.user.username} (ID: ${req.user.userId})`);
     next();
   } catch (error) {
     logger.error('Token verification error:', error.message);
@@ -42,8 +47,9 @@ const optionalAuth = (req, res, next) => {
       const decoded = jwt.verify(token, JWT_SECRET);
       req.user = {
         username: decoded.sub || decoded.username,
-        userId: decoded.sub || decoded.username
+        userId: decoded.id || decoded.userId || decoded.sub
       };
+      logger.info(`Optional auth - user: ${req.user.username}`);
     } catch (error) {
       logger.warn('Optional auth - invalid token:', error.message);
     }

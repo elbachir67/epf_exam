@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'register_screen.dart';
+import '../connection_test_screen.dart'; // AJOUT: Import du test screen
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -53,11 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 60),
                 // Logo
-                const Icon(
-                  Icons.school,
-                  size: 80,
-                  color: Color(0xFF1976D2),
-                ),
+                const Icon(Icons.school, size: 80, color: Color(0xFF1976D2)),
                 const SizedBox(height: 24),
                 const Text(
                   'EPF Africa',
@@ -72,10 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Text(
                   'Welcome back!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
                 const SizedBox(height: 48),
 
@@ -93,12 +87,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.error_outline, color: Colors.red[700], size: 20),
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red[700],
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 authProvider.error!,
-                                style: TextStyle(color: Colors.red[700], fontSize: 14),
+                                style: TextStyle(
+                                  color: Colors.red[700],
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ],
@@ -135,7 +136,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                        _isPasswordVisible
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                       ),
                       onPressed: () {
                         setState(() {
@@ -169,13 +172,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
                               ),
                             )
-                          : const Text(
-                              'Login',
-                              style: TextStyle(fontSize: 16),
-                            ),
+                          : const Text('Login', style: TextStyle(fontSize: 16)),
                     );
                   },
                 ),
@@ -197,6 +199,59 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: const Text('Sign Up'),
                     ),
                   ],
+                ),
+
+                // AJOUT: Bouton de test de connexion
+                const SizedBox(height: 24),
+                Divider(color: Colors.grey[300]),
+                const SizedBox(height: 16),
+
+                // Bouton pour tester la connexion
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const ConnectionTestScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.network_check),
+                  label: const Text('Test Connection'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+
+                // Info pour les utilisateurs de test
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blue[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.blue[200]!),
+                  ),
+                  child: Column(
+                    children: const [
+                      Text(
+                        'Test Accounts:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'admin / admin123\nstudent / student123',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'monospace',
+                          color: Colors.blue,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
