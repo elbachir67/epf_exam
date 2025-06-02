@@ -26,10 +26,12 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentPage = 1;
   bool _hasMore = true;
   final ScrollController _scrollController = ScrollController();
+  bool _debugMode = false;
 
   @override
   void initState() {
     super.initState();
+    print('HomeScreen initState called');
     _loadCategories();
     _scrollController.addListener(_onScroll);
   }
@@ -42,7 +44,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       if (!_isLoading && _hasMore) {
         _loadMoreQuestions();
       }
@@ -50,19 +53,54 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadCategories() async {
-    final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
-    await categoryProvider.fetchCategories();
-    
-    if (categoryProvider.categories.isNotEmpty && mounted) {
+    print('Loading categories...');
+    final categoryProvider = Provider.of<CategoryProvider>(
+      context,
+      listen: false,
+    );
+
+    setState(() {
+      _error = null;
+    });
+
+    try {
+      await categoryProvider.fetchCategories();
+
+      if (categoryProvider.error != null) {
+        setState(() {
+          _error = 'Failed to load categories: ${categoryProvider.error}';
+        });
+        print('Category error: ${categoryProvider.error}');
+        return;
+      }
+
+      print('Categories loaded: ${categoryProvider.categories.length}');
+
+      if (categoryProvider.categories.isNotEmpty && mounted) {
+        setState(() {
+          _selectedCategory = categoryProvider.categories.first;
+        });
+        print('Selected category: ${_selectedCategory?.name}');
+        _loadQuestions(refresh: true);
+      } else {
+        setState(() {
+          _error =
+              'No categories available. Please check if the backend is running correctly.';
+        });
+      }
+    } catch (e) {
+      print('Error loading categories: $e');
       setState(() {
-        _selectedCategory = categoryProvider.categories.first;
+        _error = 'Error loading categories: $e';
       });
-      _loadQuestions(refresh: true);
     }
   }
 
   Future<void> _loadQuestions({bool refresh = false}) async {
-    if (_selectedCategory == null) return;
+    if (_selectedCategory == null) {
+      print('No category selected');
+      return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -75,6 +113,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
+      print(
+        'Loading questions for category: ${_selectedCategory!.name} (${_selectedCategory!.id})',
+      );
+
       final result = await _questionService.getQuestionsByCategory(
         _selectedCategory!.id,
         page: _currentPage,
@@ -83,6 +125,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       final List<Question> newQuestions = result['questions'] as List<Question>;
       final pagination = result['pagination'] as Map<String, dynamic>;
+
+      print('Questions loaded: ${newQuestions.length}');
 
       setState(() {
         if (refresh) {
@@ -95,6 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      print('Error loading questions: $e');
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -116,6 +161,17 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('EPF Africa Q&A'),
         actions: [
+          // Debug toggle
+          IconButton(
+            icon: Icon(
+              _debugMode ? Icons.bug_report : Icons.bug_report_outlined,
+            ),
+            onPressed: () {
+              setState(() {
+                _debugMode = !_debugMode;
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
@@ -128,6 +184,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 _showLogoutDialog(authProvider);
               } else if (value == 'profile') {
                 // TODO: Navigate to profile
+              } else if (value == 'refresh') {
+                _loadCategories();
               }
             },
             itemBuilder: (BuildContext context) => [
@@ -138,6 +196,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Icon(Icons.person_outline),
                     const SizedBox(width: 8),
                     Text(authProvider.currentUser?.displayName ?? 'Profile'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'refresh',
+                child: Row(
+                  children: [
+                    Icon(Icons.refresh),
+                    SizedBox(width: 8),
+                    Text('Refresh Categories'),
                   ],
                 ),
               ),
@@ -157,36 +225,120 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
+          // Debug info
+          if (_debugMode)
+            Container(
+              color: Colors.blue[50],
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'User: ${authProvider.currentUser?.username ?? "Unknown"}',
+                  ),
+                  Text('Categories: ${categoryProvider.categories.length}'),
+                  Text('Selected: ${_selectedCategory?.name ?? "None"}'),
+                  Text('Questions: ${_questions.length}'),
+                  if (_error != null)
+                    Text(
+                      'Error: $_error',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                ],
+              ),
+            ),
+
+          // Error banner
+          if (_error != null && !_debugMode)
+            Container(
+              width: double.infinity,
+              color: Colors.red[100],
+              padding: const EdgeInsets.all(8),
+              child: Row(
+                children: [
+                  const Icon(Icons.error, color: Colors.red),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _error!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.refresh),
+                    onPressed: _loadCategories,
+                  ),
+                ],
+              ),
+            ),
+
           _buildCategorySelector(categoryProvider),
-          Expanded(
-            child: _buildQuestionList(),
-          ),
+          Expanded(child: _buildQuestionList()),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           if (_selectedCategory != null) {
+            print(
+              'Opening create question screen with category: ${_selectedCategory!.name}',
+            );
+
             final result = await Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => CreateQuestionScreen(
-                  selectedCategory: _selectedCategory!,
-                ),
+                builder: (context) =>
+                    CreateQuestionScreen(selectedCategory: _selectedCategory!),
               ),
             );
-            
+
             if (result == true) {
+              print('Question created, refreshing list');
               _loadQuestions(refresh: true);
             }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please wait for categories to load'),
+                backgroundColor: Colors.orange,
+              ),
+            );
           }
         },
-        child: const Icon(Icons.add),
+        icon: const Icon(Icons.add),
+        label: const Text('Ask Question'),
+        backgroundColor: _selectedCategory != null
+            ? Theme.of(context).primaryColor
+            : Colors.grey,
       ),
     );
   }
 
   Widget _buildCategorySelector(CategoryProvider categoryProvider) {
+    if (categoryProvider.isLoading) {
+      return Container(
+        height: 50,
+        alignment: Alignment.center,
+        child: const CircularProgressIndicator(),
+      );
+    }
+
+    if (categoryProvider.error != null) {
+      return Container(
+        height: 50,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Text(
+          'Error loading categories: ${categoryProvider.error}',
+          style: const TextStyle(color: Colors.red),
+        ),
+      );
+    }
+
     if (categoryProvider.categories.isEmpty) {
-      return const SizedBox.shrink();
+      return Container(
+        height: 50,
+        alignment: Alignment.center,
+        child: const Text('No categories available'),
+      );
     }
 
     return Container(
@@ -199,7 +351,7 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           final category = categoryProvider.categories[index];
           final isSelected = _selectedCategory?.id == category.id;
-          
+
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: CategoryChip(
@@ -220,9 +372,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildQuestionList() {
     if (_isLoading && _questions.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_error != null && _questions.isEmpty) {
@@ -230,19 +380,12 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               'Error: $_error',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 16,
-              ),
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -259,11 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.help_outline,
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.help_outline, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               'No questions yet',
@@ -276,10 +415,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 8),
             Text(
               'Be the first to ask a question!',
-              style: TextStyle(
-                color: Colors.grey[500],
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey[500], fontSize: 14),
             ),
           ],
         ),
@@ -303,9 +439,8 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () async {
               await Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => QuestionDetailScreen(
-                    questionId: question.id,
-                  ),
+                  builder: (context) =>
+                      QuestionDetailScreen(questionId: question.id),
                 ),
               );
               _loadQuestions(refresh: true);
