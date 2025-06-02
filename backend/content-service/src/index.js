@@ -54,6 +54,7 @@ mongoose
 
     // Initialize database with default categories
     try {
+      const initializeDatabase = require("./config/db-init");
       await initializeDatabase();
       logger.info("✅ Database initialization completed");
     } catch (error) {

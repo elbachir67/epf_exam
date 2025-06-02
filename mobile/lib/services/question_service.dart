@@ -9,9 +9,6 @@ import 'auth_service.dart';
 class QuestionService {
   final AuthService _authService = AuthService();
 
-  // Mode debug
-  static bool debugMode = true;
-
   Future<Map<String, dynamic>> getQuestionsByCategory(
     String categoryId, {
     int page = 1,
@@ -28,19 +25,13 @@ class QuestionService {
             },
           );
 
-      if (debugMode) {
-        print('=== GET QUESTIONS BY CATEGORY ===');
-        print('URL: $uri');
-      }
+      print('Fetching questions from: $uri');
 
       final response = await http
           .get(uri, headers: ApiConfig.defaultHeaders)
           .timeout(ApiConfig.requestTimeout);
 
-      if (debugMode) {
-        print('Response status: ${response.statusCode}');
-        print('Response body: ${response.body}');
-      }
+      print('Response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
@@ -57,111 +48,16 @@ class QuestionService {
 
       throw Exception('Failed to fetch questions');
     } catch (e) {
-      if (debugMode) print('Error fetching questions: $e');
+      print('Error fetching questions: $e');
       throw Exception('Failed to fetch questions: ${e.toString()}');
-    }
-  }
-
-  Future<Question> createQuestion({
-    required String title,
-    required String content,
-    required String categoryId,
-    List<String> tags = const [],
-  }) async {
-    try {
-      final token = await _authService.getToken();
-      if (token == null) {
-        throw Exception('User not authenticated - no token found');
-      }
-
-      if (debugMode) {
-        print('=== CREATE QUESTION DEBUG ===');
-        print('URL: ${ApiConfig.contentServiceBaseUrl}/questions');
-        print('Token: ${token.substring(0, 50)}...');
-        print('Title: $title');
-        print('Content: $content');
-        print('CategoryId: $categoryId');
-        print('Tags: $tags');
-      }
-
-      // Décoder le token pour voir son contenu
-      if (debugMode) {
-        try {
-          final parts = token.split('.');
-          if (parts.length == 3) {
-            final payload = parts[1];
-            final normalized = base64.normalize(payload);
-            final decoded = utf8.decode(base64.decode(normalized));
-            print('Token payload: $decoded');
-          }
-        } catch (e) {
-          print('Could not decode token: $e');
-        }
-      }
-
-      final requestBody = json.encode({
-        'title': title,
-        'content': content,
-        'categoryId': categoryId,
-        'tags': tags,
-      });
-
-      if (debugMode) {
-        print('Request headers: ${ApiConfig.getAuthHeaders(token)}');
-        print('Request body: $requestBody');
-      }
-
-      final response = await http
-          .post(
-            Uri.parse('${ApiConfig.contentServiceBaseUrl}/questions'),
-            headers: ApiConfig.getAuthHeaders(token),
-            body: requestBody,
-          )
-          .timeout(ApiConfig.requestTimeout);
-
-      if (debugMode) {
-        print('Response status: ${response.statusCode}');
-        print('Response headers: ${response.headers}');
-        print('Response body: ${response.body}');
-      }
-
-      if (response.statusCode == 201) {
-        final responseData = json.decode(response.body);
-
-        if (responseData['success'] == true && responseData['data'] != null) {
-          return Question.fromJson(responseData['data']);
-        } else {
-          throw Exception('Invalid response structure: ${response.body}');
-        }
-      } else if (response.statusCode == 401) {
-        throw Exception('Authentication failed - invalid or expired token');
-      } else if (response.statusCode == 400) {
-        final responseData = json.decode(response.body);
-        throw Exception(
-          'Validation error: ${responseData['error'] ?? responseData['message'] ?? response.body}',
-        );
-      } else {
-        throw Exception(
-          'Server error (${response.statusCode}): ${response.body}',
-        );
-      }
-    } catch (e) {
-      if (debugMode) {
-        print('=== CREATE QUESTION ERROR ===');
-        print('Error type: ${e.runtimeType}');
-        print('Error message: $e');
-      }
-      throw Exception('Failed to create question: ${e.toString()}');
     }
   }
 
   Future<Map<String, dynamic>> getQuestionById(String questionId) async {
     try {
-      if (debugMode) {
-        print('=== GET QUESTION BY ID ===');
-        print('Question ID: $questionId');
-        print('URL: ${ApiConfig.contentServiceBaseUrl}/questions/$questionId');
-      }
+      print('=== GET QUESTION BY ID ===');
+      print('Question ID: $questionId');
+      print('URL: ${ApiConfig.contentServiceBaseUrl}/questions/$questionId');
 
       final response = await http
           .get(
@@ -172,10 +68,8 @@ class QuestionService {
           )
           .timeout(ApiConfig.requestTimeout);
 
-      if (debugMode) {
-        print('Response status: ${response.statusCode}');
-        print('Response body: ${response.body}');
-      }
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
@@ -183,9 +77,7 @@ class QuestionService {
         if (responseData['success'] == true && responseData['data'] != null) {
           final question = Question.fromJson(responseData['data']);
 
-          if (debugMode) {
-            print('Question parsed successfully: ${question.title}');
-          }
+          print('Question parsed successfully: ${question.title}');
 
           // Get answers separately
           final answersResponse = await getAnswersByQuestion(questionId);
@@ -196,9 +88,7 @@ class QuestionService {
 
       throw Exception('Failed to fetch question: ${response.body}');
     } catch (e) {
-      if (debugMode) {
-        print('Error fetching question: $e');
-      }
+      print('Error fetching question: $e');
       throw Exception('Failed to fetch question: ${e.toString()}');
     }
   }
@@ -226,7 +116,52 @@ class QuestionService {
 
       return [];
     } catch (e) {
+      print('Error fetching answers: $e');
       return [];
+    }
+  }
+
+  Future<Question> createQuestion({
+    required String title,
+    required String content,
+    required String categoryId,
+    List<String> tags = const [],
+  }) async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) {
+        throw Exception('User not authenticated');
+      }
+
+      print('Creating question with token: ${token.substring(0, 20)}...');
+
+      final response = await http
+          .post(
+            Uri.parse('${ApiConfig.contentServiceBaseUrl}/questions'),
+            headers: ApiConfig.getAuthHeaders(token),
+            body: json.encode({
+              'title': title,
+              'content': content,
+              'categoryId': categoryId,
+              'tags': tags,
+            }),
+          )
+          .timeout(ApiConfig.requestTimeout);
+
+      print('Create question response: ${response.statusCode}');
+
+      if (response.statusCode == 201) {
+        final responseData = json.decode(response.body);
+
+        if (responseData['success'] == true && responseData['data'] != null) {
+          return Question.fromJson(responseData['data']);
+        }
+      }
+
+      throw Exception('Failed to create question: ${response.body}');
+    } catch (e) {
+      print('Error creating question: $e');
+      throw Exception('Failed to create question: ${e.toString()}');
     }
   }
 
@@ -295,50 +230,6 @@ class QuestionService {
       throw Exception('Failed to vote');
     } catch (e) {
       throw Exception('Failed to vote: ${e.toString()}');
-    }
-  }
-
-  Future<Map<String, dynamic>> searchQuestions(
-    String query, {
-    int page = 1,
-    int limit = 10,
-  }) async {
-    try {
-      final uri =
-          Uri.parse(
-            '${ApiConfig.contentServiceBaseUrl}/questions/search',
-          ).replace(
-            queryParameters: {
-              'q': query,
-              'page': page.toString(),
-              'limit': limit.toString(),
-            },
-          );
-
-      final response = await http
-          .get(uri, headers: ApiConfig.defaultHeaders)
-          .timeout(ApiConfig.requestTimeout);
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-
-        if (responseData['success'] == true && responseData['data'] != null) {
-          final data = responseData['data'];
-          final List<Question> questions = (data['questions'] as List)
-              .map((json) => Question.fromJson(json))
-              .toList();
-
-          return {
-            'questions': questions,
-            'pagination': data['pagination'],
-            'query': data['query'],
-          };
-        }
-      }
-
-      throw Exception('Failed to search questions');
-    } catch (e) {
-      throw Exception('Failed to search questions: ${e.toString()}');
     }
   }
 }

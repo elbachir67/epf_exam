@@ -81,10 +81,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const Text(
                   'Join EPF Africa Q&A Community',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
                 const SizedBox(height: 32),
 
@@ -101,12 +98,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.error_outline, color: Colors.red[700], size: 20),
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red[700],
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 authProvider.error!,
-                                style: TextStyle(color: Colors.red[700], fontSize: 14),
+                                style: TextStyle(
+                                  color: Colors.red[700],
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ],
@@ -194,7 +198,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                        _isPasswordVisible
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                       ),
                       onPressed: () {
                         setState(() {
@@ -225,11 +231,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isConfirmPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                        _isConfirmPasswordVisible
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                       ),
                       onPressed: () {
                         setState(() {
-                          _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                          _isConfirmPasswordVisible =
+                              !_isConfirmPasswordVisible;
                         });
                       },
                     ),
@@ -261,7 +270,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
                               ),
                             )
                           : const Text(

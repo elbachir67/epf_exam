@@ -1,7 +1,7 @@
-const Question = require('../models/question.model');
-const Category = require('../models/category.model');
-const { validationResult } = require('express-validator');
-const logger = require('../utils/logger');
+const Question = require("../models/question.model");
+const Category = require("../models/category.model");
+const { validationResult } = require("express-validator");
+const logger = require("../utils/logger");
 
 class QuestionController {
   async createQuestion(req, res) {
@@ -10,7 +10,7 @@ class QuestionController {
       if (!errors.isEmpty()) {
         return res.status(400).json({
           success: false,
-          errors: errors.array()
+          errors: errors.array(),
         });
       }
 
@@ -22,7 +22,7 @@ class QuestionController {
       if (!category || !category.isActive) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid category'
+          error: "Invalid category",
         });
       }
 
@@ -32,23 +32,23 @@ class QuestionController {
         categoryId,
         tags: tags || [],
         authorId: userId,
-        authorName: username
+        authorName: username,
       });
 
       const savedQuestion = await question.save();
-      await savedQuestion.populate('categoryId', 'name description color icon');
+      await savedQuestion.populate("categoryId", "name description color icon");
 
       logger.info(`Question created: ${savedQuestion._id} by ${username}`);
 
       res.status(201).json({
         success: true,
-        data: savedQuestion
+        data: savedQuestion,
       });
     } catch (error) {
-      logger.error('Error creating question:', error);
+      logger.error("Error creating question:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to create question'
+        error: "Failed to create question",
       });
     }
   }
@@ -65,23 +65,23 @@ class QuestionController {
       if (!category || !category.isActive) {
         return res.status(404).json({
           success: false,
-          error: 'Category not found'
+          error: "Category not found",
         });
       }
 
-      const questions = await Question.find({ 
-        categoryId, 
-        isActive: true 
+      const questions = await Question.find({
+        categoryId,
+        isActive: true,
       })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate('categoryId', 'name description color icon')
-        .select('-__v');
+        .populate("categoryId", "name description color icon")
+        .select("-__v");
 
-      const totalQuestions = await Question.countDocuments({ 
-        categoryId, 
-        isActive: true 
+      const totalQuestions = await Question.countDocuments({
+        categoryId,
+        isActive: true,
       });
 
       const totalPages = Math.ceil(totalQuestions / limit);
@@ -95,15 +95,15 @@ class QuestionController {
             totalPages,
             totalItems: totalQuestions,
             hasMore: page < totalPages,
-            itemsPerPage: limit
-          }
-        }
+            itemsPerPage: limit,
+          },
+        },
       });
     } catch (error) {
-      logger.error('Error fetching questions:', error);
+      logger.error("Error fetching questions:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to fetch questions'
+        error: "Failed to fetch questions",
       });
     }
   }
@@ -113,38 +113,35 @@ class QuestionController {
       const { id } = req.params;
 
       const question = await Question.findById(id)
-        .populate('categoryId', 'name description color icon')
+        .populate("categoryId", "name description color icon")
         .populate({
-          path: 'answers',
+          path: "answers",
           match: { isActive: true },
           options: {
-            sort: { isAccepted: -1, score: -1, createdAt: -1 }
-          }
+            sort: { isAccepted: -1, score: -1, createdAt: -1 },
+          },
         })
-        .select('-__v');
+        .select("-__v");
 
       if (!question || !question.isActive) {
         return res.status(404).json({
           success: false,
-          error: 'Question not found'
+          error: "Question not found",
         });
       }
 
       // Increment view count
-      await Question.updateOne(
-        { _id: id },
-        { $inc: { viewCount: 1 } }
-      );
+      await Question.updateOne({ _id: id }, { $inc: { viewCount: 1 } });
 
       res.json({
         success: true,
-        data: question
+        data: question,
       });
     } catch (error) {
-      logger.error('Error fetching question:', error);
+      logger.error("Error fetching question:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to fetch question'
+        error: "Failed to fetch question",
       });
     }
   }
@@ -159,21 +156,21 @@ class QuestionController {
       if (!query || query.trim().length < 2) {
         return res.status(400).json({
           success: false,
-          error: 'Search query must be at least 2 characters long'
+          error: "Search query must be at least 2 characters long",
         });
       }
 
       const searchFilter = {
         $text: { $search: query },
-        isActive: true
+        isActive: true,
       };
 
       const questions = await Question.find(searchFilter)
-        .sort({ score: { $meta: 'textScore' }, createdAt: -1 })
+        .sort({ score: { $meta: "textScore" }, createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate('categoryId', 'name description color icon')
-        .select('-__v');
+        .populate("categoryId", "name description color icon")
+        .select("-__v");
 
       const totalQuestions = await Question.countDocuments(searchFilter);
       const totalPages = Math.ceil(totalQuestions / limit);
@@ -187,16 +184,16 @@ class QuestionController {
             totalPages,
             totalItems: totalQuestions,
             hasMore: page < totalPages,
-            itemsPerPage: limit
+            itemsPerPage: limit,
           },
-          query
-        }
+          query,
+        },
       });
     } catch (error) {
-      logger.error('Error searching questions:', error);
+      logger.error("Error searching questions:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to search questions'
+        error: "Failed to search questions",
       });
     }
   }
@@ -208,18 +205,18 @@ class QuestionController {
       const { userId } = req.user;
 
       const question = await Question.findById(id);
-      
+
       if (!question) {
         return res.status(404).json({
           success: false,
-          error: 'Question not found'
+          error: "Question not found",
         });
       }
 
       if (question.authorId !== userId) {
         return res.status(403).json({
           success: false,
-          error: 'You can only edit your own questions'
+          error: "You can only edit your own questions",
         });
       }
 
@@ -228,19 +225,22 @@ class QuestionController {
       question.tags = tags || question.tags;
 
       const updatedQuestion = await question.save();
-      await updatedQuestion.populate('categoryId', 'name description color icon');
+      await updatedQuestion.populate(
+        "categoryId",
+        "name description color icon"
+      );
 
       logger.info(`Question updated: ${id} by ${userId}`);
 
       res.json({
         success: true,
-        data: updatedQuestion
+        data: updatedQuestion,
       });
     } catch (error) {
-      logger.error('Error updating question:', error);
+      logger.error("Error updating question:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to update question'
+        error: "Failed to update question",
       });
     }
   }
@@ -251,18 +251,18 @@ class QuestionController {
       const { userId } = req.user;
 
       const question = await Question.findById(id);
-      
+
       if (!question) {
         return res.status(404).json({
           success: false,
-          error: 'Question not found'
+          error: "Question not found",
         });
       }
 
       if (question.authorId !== userId) {
         return res.status(403).json({
           success: false,
-          error: 'You can only delete your own questions'
+          error: "You can only delete your own questions",
         });
       }
 
@@ -273,13 +273,13 @@ class QuestionController {
 
       res.json({
         success: true,
-        message: 'Question deleted successfully'
+        message: "Question deleted successfully",
       });
     } catch (error) {
-      logger.error('Error deleting question:', error);
+      logger.error("Error deleting question:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to delete question'
+        error: "Failed to delete question",
       });
     }
   }

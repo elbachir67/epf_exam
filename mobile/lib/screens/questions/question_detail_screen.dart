@@ -184,6 +184,19 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
   }
 
   Widget _buildQuestionSection() {
+    if (_question == null) {
+      print('ERROR: _question is null in _buildQuestionSection');
+      return const Card(
+        margin: EdgeInsets.all(16),
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Center(child: Text('Question data not loaded')),
+        ),
+      );
+    }
+
+    print('Building question section for: ${_question!.title}');
+
     return Card(
       margin: const EdgeInsets.all(16),
       child: Padding(
