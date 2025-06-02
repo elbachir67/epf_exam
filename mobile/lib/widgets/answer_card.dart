@@ -6,11 +6,8 @@ class AnswerCard extends StatelessWidget {
   final Answer answer;
   final Function(int) onVote;
 
-  const AnswerCard({
-    Key? key,
-    required this.answer,
-    required this.onVote,
-  }) : super(key: key);
+  const AnswerCard({Key? key, required this.answer, required this.onVote})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +21,10 @@ class AnswerCard extends StatelessWidget {
             // Accepted badge
             if (answer.isAccepted)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.green[50],
                   borderRadius: BorderRadius.circular(16),
@@ -51,10 +51,7 @@ class AnswerCard extends StatelessWidget {
             // Content
             Text(
               answer.content,
-              style: const TextStyle(
-                fontSize: 16,
-                height: 1.5,
-              ),
+              style: const TextStyle(fontSize: 16, height: 1.5),
             ),
             const SizedBox(height: 16),
 
@@ -75,6 +72,7 @@ class AnswerCard extends StatelessWidget {
                         onPressed: () => onVote(1),
                         padding: const EdgeInsets.all(8),
                         constraints: const BoxConstraints(),
+                        color: Colors.grey[600],
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -91,6 +89,7 @@ class AnswerCard extends StatelessWidget {
                         onPressed: () => onVote(-1),
                         padding: const EdgeInsets.all(8),
                         constraints: const BoxConstraints(),
+                        color: Colors.grey[600],
                       ),
                     ],
                   ),
@@ -100,25 +99,21 @@ class AnswerCard extends StatelessWidget {
                 // Author info
                 Icon(Icons.person_outline, size: 16, color: Colors.grey[600]),
                 const SizedBox(width: 4),
-                Text(
-                  answer.authorName,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
+                Expanded(
+                  child: Text(
+                    answer.authorName,
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(width: 8),
 
                 // Date
-                Text(
-                  answer.createdAt != null
-                      ? DateFormat('MMM d, yyyy').format(answer.createdAt!)
-                      : '',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
+                if (answer.createdAt != null)
+                  Text(
+                    DateFormat('MMM d, yyyy').format(answer.createdAt!),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
-                ),
               ],
             ),
           ],

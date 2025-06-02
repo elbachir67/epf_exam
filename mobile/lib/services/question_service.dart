@@ -157,6 +157,12 @@ class QuestionService {
 
   Future<Map<String, dynamic>> getQuestionById(String questionId) async {
     try {
+      if (debugMode) {
+        print('=== GET QUESTION BY ID ===');
+        print('Question ID: $questionId');
+        print('URL: ${ApiConfig.contentServiceBaseUrl}/questions/$questionId');
+      }
+
       final response = await http
           .get(
             Uri.parse(
@@ -166,11 +172,20 @@ class QuestionService {
           )
           .timeout(ApiConfig.requestTimeout);
 
+      if (debugMode) {
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
 
         if (responseData['success'] == true && responseData['data'] != null) {
           final question = Question.fromJson(responseData['data']);
+
+          if (debugMode) {
+            print('Question parsed successfully: ${question.title}');
+          }
 
           // Get answers separately
           final answersResponse = await getAnswersByQuestion(questionId);
@@ -179,8 +194,11 @@ class QuestionService {
         }
       }
 
-      throw Exception('Failed to fetch question');
+      throw Exception('Failed to fetch question: ${response.body}');
     } catch (e) {
+      if (debugMode) {
+        print('Error fetching question: $e');
+      }
       throw Exception('Failed to fetch question: ${e.toString()}');
     }
   }

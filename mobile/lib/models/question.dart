@@ -34,40 +34,67 @@ class Question {
   });
 
   factory Question.fromJson(Map<String, dynamic> json) {
+    // Debug print
+    print('Parsing question from JSON: ${json.toString()}');
+
+    // Handle different possible category formats
+    Category? parsedCategory;
+    String parsedCategoryId = '';
+
+    if (json['categoryId'] != null) {
+      if (json['categoryId'] is String) {
+        parsedCategoryId = json['categoryId'];
+      } else if (json['categoryId'] is Map) {
+        parsedCategoryId =
+            json['categoryId']['_id'] ?? json['categoryId']['id'] ?? '';
+        parsedCategory = Category.fromJson(json['categoryId']);
+      }
+    }
+
+    // If category is provided separately
+    if (parsedCategory == null &&
+        json['category'] != null &&
+        json['category'] is Map) {
+      parsedCategory = Category.fromJson(json['category']);
+    }
+
     return Question(
       id: json['_id'] ?? json['id'] ?? '',
       title: json['title'] ?? '',
       content: json['content'] ?? '',
       authorId: json['authorId'] ?? '',
-      authorName: json['authorName'] ?? '',
-      categoryId: json['categoryId'] is String 
-          ? json['categoryId'] 
-          : (json['categoryId']?['_id'] ?? ''),
-      category: json['categoryId'] != null && json['categoryId'] is Map
-          ? Category.fromJson(json['categoryId'])
-          : null,
-      tags: json['tags'] != null 
-          ? List<String>.from(json['tags'])
-          : [],
+      authorName: json['authorName'] ?? 'Unknown',
+      categoryId: parsedCategoryId,
+      category: parsedCategory,
+      tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
       viewCount: json['viewCount'] ?? 0,
       answerCount: json['answerCount'] ?? 0,
       isActive: json['isActive'] ?? true,
       isClosed: json['isClosed'] ?? false,
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
+          ? DateTime.tryParse(json['createdAt'].toString())
           : null,
       updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'])
+          ? DateTime.tryParse(json['updatedAt'].toString())
           : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'title': title,
       'content': content,
+      'authorId': authorId,
+      'authorName': authorName,
       'categoryId': categoryId,
       'tags': tags,
+      'viewCount': viewCount,
+      'answerCount': answerCount,
+      'isActive': isActive,
+      'isClosed': isClosed,
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
 }

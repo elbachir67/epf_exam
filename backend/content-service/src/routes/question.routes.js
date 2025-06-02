@@ -66,4 +66,25 @@ router.get("/test-auth", verifyToken, (req, res) => {
   });
 });
 
+// Route de debug - à retirer plus tard
+router.get("/debug/:id", async (req, res) => {
+  try {
+    const question = await Question.findById(req.params.id).populate(
+      "categoryId",
+      "name description color icon"
+    );
+
+    res.json({
+      success: true,
+      rawQuestion: question,
+      data: question,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;

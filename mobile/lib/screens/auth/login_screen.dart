@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'register_screen.dart';
-import '../connection_test_screen.dart'; // AJOUT: Import du test screen
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -199,59 +198,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: const Text('Sign Up'),
                     ),
                   ],
-                ),
-
-                // AJOUT: Bouton de test de connexion
-                const SizedBox(height: 24),
-                Divider(color: Colors.grey[300]),
-                const SizedBox(height: 16),
-
-                // Bouton pour tester la connexion
-                OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const ConnectionTestScreen(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.network_check),
-                  label: const Text('Test Connection'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                ),
-
-                // Info pour les utilisateurs de test
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.blue[200]!),
-                  ),
-                  child: Column(
-                    children: const [
-                      Text(
-                        'Test Accounts:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'admin / admin123\nstudent / student123',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontFamily: 'monospace',
-                          color: Colors.blue,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
                 ),
               ],
             ),

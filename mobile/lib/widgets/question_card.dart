@@ -6,11 +6,8 @@ class QuestionCard extends StatelessWidget {
   final Question question;
   final VoidCallback onTap;
 
-  const QuestionCard({
-    Key? key,
-    required this.question,
-    required this.onTap,
-  }) : super(key: key);
+  const QuestionCard({Key? key, required this.question, required this.onTap})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +54,10 @@ class QuestionCard extends StatelessWidget {
                   runSpacing: 4,
                   children: question.tags.take(3).map((tag) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.blue[50],
                         borderRadius: BorderRadius.circular(12),
@@ -81,44 +81,45 @@ class QuestionCard extends StatelessWidget {
                 children: [
                   Icon(Icons.person_outline, size: 16, color: Colors.grey[600]),
                   const SizedBox(width: 4),
-                  Text(
-                    question.authorName,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
+                  Flexible(
+                    child: Text(
+                      question.authorName,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Icon(Icons.visibility_outlined, size: 16, color: Colors.grey[600]),
+                  Icon(
+                    Icons.visibility_outlined,
+                    size: 16,
+                    color: Colors.grey[600],
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     '${question.viewCount}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   const SizedBox(width: 12),
-                  Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[600]),
+                  Icon(
+                    Icons.chat_bubble_outline,
+                    size: 16,
+                    color: Colors.grey[600],
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     '${question.answerCount}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   const Spacer(),
-                  Text(
-                    question.createdAt != null
-                        ? DateFormat('MMM d').format(question.createdAt!)
-                        : '',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[500],
+                  if (question.createdAt != null)
+                    Text(
+                      DateFormat('MMM d').format(question.createdAt!),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
-                  ),
                 ],
               ),
             ],
