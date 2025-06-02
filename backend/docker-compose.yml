@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  user-service:
+    build: 
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: epf-africa-user-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JWT_SECRET=epf_africa_secret_key_2025_very_long_and_secure_string_for_production
+    networks:
+      - epf-africa-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  content-service:
+    build:
+      context: ./content-service
+      dockerfile: Dockerfile
+    container_name: epf-africa-content-service
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongodb:27017/epfafrica
+      - JWT_SECRET=epf_africa_secret_key_2025_very_long_and_secure_string_for_production
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - epf-africa-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "src/utils/healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  mongodb:
+    image: mongo:6.0
+    container_name: epf-africa-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=epfafrica
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - epf-africa-network
+    restart: unless-stopped
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/epfafrica --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+networks:
+  epf-africa-network:
+    driver: bridge
+    name: epf-africa-network
+
+volumes:
+  mongodb_data:
+    name: epf-africa-mongodb-data
+  mongodb_config:
+    name: epf-africa-mongodb-config
