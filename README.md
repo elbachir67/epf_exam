@@ -1,94 +1,31 @@
-# EPF Africa Q&A Platform
+# EPF Africa Q&A - Quick Start
 
-Plateforme de questions-réponses pour les étudiants d'EPF Africa.
-
-## Prérequis
-
-- Docker et Docker Compose
-- Flutter SDK (3.10+)
-- Git
-
-## Installation et lancement
-
-### 1. Cloner le projet
+## Cloner le projet
 
 ```bash
 git clone https://github.com/elbachir67/epf-africa-project.git
 cd epf-africa-project
 ```
 
-### 2. Lancer le backend (Docker)
+## Lancer le projet
 
 ```bash
+# 1. Backend
 cd backend
 docker-compose up -d
-```
 
-Attendez 30 secondes que les services démarrent complètement.
-
-### 3. Lancer l'application mobile
-
-Dans un nouveau terminal :
-
-```bash
+# 2. Mobile (nouveau terminal)
 cd mobile
 flutter pub get
 flutter run
 ```
 
-## Ports utilisés
+## Création de comptes et Connexion
 
-- **8080** : Service utilisateur (Spring Boot)
-- **3000** : Service contenu (Node.js)
-- **27017** : MongoDB
-
-## Comptes de test (à créer par vous même)
-
-- Username: `admin` / Password: `admin123`
-- Username: `student` / Password: `student123`
-
-## Commandes utiles
-
-### Voir les logs
+## Arrêter
 
 ```bash
-docker-compose logs -f
+docker-compose down -v
 ```
 
-### Arrêter les services
-
-```bash
-docker-compose down
-```
-
-### Reconstruire les services
-
-```bash
-docker-compose up -d --build
-```
-
-## Résolution des problèmes
-
-### Si les catégories ne se chargent pas
-
-```bash
-docker-compose restart content-service
-```
-
-### Si la connexion échoue sur mobile
-
-Vérifiez que vous utilisez la bonne adresse IP :
-
-- Émulateur Android : L'app utilise automatiquement `10.0.2.2`
-- Appareil physique : Modifiez l'IP dans `mobile/lib/config/platform_config.dart`
-
-## Architecture
-
-- **Backend** : Microservices (Spring Boot + Node.js)
-- **Base de données** : MongoDB
-- **Mobile** : Flutter
-- **Authentification** : JWT
-
-## Contact
-
-Pour toute question, contactez l'équipe EPF Africa.
+C'est tout ! 🚀
