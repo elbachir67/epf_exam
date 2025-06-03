@@ -2,23 +2,23 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files
+# Copier package.json d'abord
 COPY package*.json ./
 
-# Copy application files
+# Installer les dépendances
+RUN npm ci --only=production
+
+# Copier le reste de l'application
 COPY . .
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
-RUN chown -R nodejs:nodejs /app
+# Créer l'utilisateur non-root
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 && \
+    chown -R nodejs:nodejs /app
 
 USER nodejs
 
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD node src/utils/healthcheck.js || exit 1
-
+# Commande de démarrage
 CMD ["node", "src/index.js"]

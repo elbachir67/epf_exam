@@ -55,7 +55,7 @@ class AuthProvider with ChangeNotifier {
         firstName: firstName,
         lastName: lastName,
       );
-      
+
       if (result['success']) {
         _currentUser = result['user'];
         return true;
@@ -79,7 +79,7 @@ class AuthProvider with ChangeNotifier {
 
     try {
       final result = await _authService.login(username, password);
-      
+
       if (result['success']) {
         _currentUser = result['user'];
         return true;
@@ -115,5 +115,44 @@ class AuthProvider with ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  // Ajoutez cette méthode dans auth_provider.dart
+
+  Future<bool> registerWithoutLogin({
+    required String username,
+    required String email,
+    required String password,
+    String? firstName,
+    String? lastName,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final result = await _authService.register(
+        username: username,
+        email: email,
+        password: password,
+        firstName: firstName,
+        lastName: lastName,
+      );
+
+      if (result['success']) {
+        // Ne pas sauvegarder l'utilisateur ni le token
+        // L'utilisateur devra se connecter manuellement
+        return true;
+      } else {
+        _error = result['error'];
+        return false;
+      }
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }

@@ -1,0 +1,185 @@
+# ============================================
+# Scripts temporaires et de debug
+# ============================================
+fix-all.sh
+diagnose.sh
+fix-categories.sh
+*.sh
+
+# ============================================
+# Backend - Java/Spring Boot
+# ============================================
+backend/user-service/target/
+backend/user-service/build/
+backend/user-service/.gradle/
+backend/user-service/bin/
+backend/user-service/*.iml
+backend/user-service/.idea/
+backend/user-service/*.ipr
+backend/user-service/*.iws
+backend/user-service/out/
+backend/user-service/.settings/
+backend/user-service/.classpath
+backend/user-service/.project
+
+# ============================================
+# Backend - Node.js
+# ============================================
+backend/content-service/node_modules/
+backend/content-service/npm-debug.log*
+backend/content-service/yarn-debug.log*
+backend/content-service/yarn-error.log*
+backend/content-service/.env.local
+backend/content-service/.env.development.local
+backend/content-service/.env.test.local
+backend/content-service/.env.production.local
+backend/content-service/coverage/
+backend/content-service/.nyc_output
+
+# ============================================
+# Mobile - Flutter
+# ============================================
+# Flutter/Dart
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/.pub-cache/
+mobile/.pub/
+mobile/build/
+mobile/coverage/
+
+# Android related
+mobile/android/.gradle/
+mobile/android/captures/
+mobile/android/.idea/
+mobile/android/local.properties
+mobile/android/**/GeneratedPluginRegistrant.java
+mobile/android/key.properties
+mobile/android/**/*.keystore
+mobile/android/**/*.jks
+
+# iOS related
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Flutter.podspec
+mobile/ios/Flutter/Generated.xcconfig
+mobile/ios/Flutter/app.flx
+mobile/ios/Flutter/app.zip
+mobile/ios/Flutter/flutter_assets/
+mobile/ios/Flutter/flutter_export_environment.sh
+mobile/ios/ServiceDefinitions.json
+mobile/ios/Runner/GeneratedPluginRegistrant.*
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/ios/Podfile.lock
+
+# Web related
+mobile/web/favicon.png
+mobile/web/icons/Icon-*.png
+
+# Windows
+mobile/windows/flutter/generated_plugin_registrant.cc
+mobile/windows/flutter/generated_plugin_registrant.h
+mobile/windows/flutter/generated_plugins.cmake
+
+# ============================================
+# Docker
+# ============================================
+backend/.env
+backend/docker-compose.override.yml
+
+# ============================================
+# IDE et Editeurs
+# ============================================
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Eclipse
+.metadata/
+.settings/
+.classpath
+.project
+
+# ============================================
+# OS
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================
+# Logs et fichiers temporaires
+# ============================================
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*.pid
+*.seed
+*.pid.lock
+
+# ============================================
+# Fichiers de test et debug
+# ============================================
+test-results/
+coverage/
+.nyc_output/
+*.lcov
+
+# ============================================
+# Autres
+# ============================================
+# Fichiers de sauvegarde
+*.bak
+*.backup
+*.old
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Certificats (sauf si nécessaires)
+*.pem
+*.key
+*.crt
+
+# Base de données locales
+*.sqlite
+*.sqlite3
+*.db
+
+# Dossiers de build personnalisés
+dist/
+out/
+output/

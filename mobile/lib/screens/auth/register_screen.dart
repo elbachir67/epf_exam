@@ -37,7 +37,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     authProvider.clearError();
 
-    final success = await authProvider.register(
+    // Créer le compte SANS connexion automatique
+    final success = await authProvider.registerWithoutLogin(
       username: _usernameController.text.trim(),
       email: _emailController.text.trim(),
       password: _passwordController.text,
@@ -46,7 +47,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
 
     if (success && mounted) {
-      Navigator.of(context).pushReplacementNamed('/home');
+      // Afficher un dialogue de succès
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            icon: const Icon(Icons.check_circle, color: Colors.green, size: 64),
+            title: const Text('Account Created!'),
+            content: const Text(
+              'Your account has been created successfully. Please login with your credentials.',
+              textAlign: TextAlign.center,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fermer le dialogue
+                  Navigator.of(context).pop(); // Retourner à login
+                },
+                child: const Text('Go to Login'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -179,7 +203,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return 'Please enter your email';
                     }
-                    // Regex corrigée
                     final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
                     if (!emailRegex.hasMatch(value)) {
                       return 'Please enter a valid email';
@@ -276,7 +299,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             )
                           : const Text(
-                              'Sign Up',
+                              'Create Account',
                               style: TextStyle(fontSize: 16),
                             ),
                     );
